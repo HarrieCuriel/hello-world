@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Analoge Klok</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            background-color: #ffffff;
+            border: 2px solid #000;
+            border-radius: 50%;
+        }
+        #time-text {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="clock" width="400" height="400"></canvas>
+    <div id="time-text"></div>
+
+    <script>
+        const canvas = document.getElementById('clock');
+        const ctx = canvas.getContext('2d');
+        const radius = canvas.width / 2;
+        ctx.translate(radius, radius);
+
+        function drawClock(randomTime) {
+            drawFace(ctx, radius);
+            drawNumbers(ctx, radius);
+            drawTime(ctx, radius, randomTime);
+            displayTimeText(randomTime);
+        }
+
+        function drawFace(ctx, radius) {
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(0, 0, radius * 0.05, 0, 2 * Math.PI);
+            ctx.fillStyle = '#000';
+            ctx.fill();
+        }
+
+        function drawNumbers(ctx, radius) {
+            ctx.font = `${radius * 0.15}px Arial`;
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center';
+
+            for (let num = 1; num <= 12; num++) {
+                const ang = (num * Math.PI) / 6;
+                ctx.rotate(ang);
+                ctx.translate(0, -radius * 0.85);
+                ctx.rotate(-ang);
+                ctx.fillText(num.toString(), 0, 0);
+                ctx.rotate(ang);
+                ctx.translate(0, radius * 0.85);
+                ctx.rotate(-ang);
+            }
+        }
+
+        function drawTime(ctx, radius, randomTime) {
+            const hour = randomTime.getHours() % 12;
+            const minute = randomTime.getMinutes();
+            const second = randomTime.getSeconds();
+
+            // Hour hand
+            const hourAngle = (hour * Math.PI) / 6 + (minute * Math.PI) / 360;
+            drawHand(ctx, hourAngle, radius * 0.5, radius * 0.07);
+
+            // Minute hand
+            const minuteAngle = (minute * Math.PI) / 30 + (second * Math.PI) / 1800;
+            drawHand(ctx, minuteAngle, radius * 0.8, radius * 0.05);
+
+            // Second hand
+            const secondAngle = (second * Math.PI) / 30;
+            drawHand(ctx, secondAngle, radius * 0.9, radius * 0.02, 'red');
+        }
+
+        function drawHand(ctx, angle, length, width, color = 'black') {
+            ctx.beginPath();
+            ctx.lineWidth = width;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = color;
+            ctx.moveTo(0, 0);
+            ctx.rotate(angle);
+            ctx.lineTo(0, -length);
+            ctx.stroke();
+            ctx.rotate(-angle);
+        }
+
+        function generateRandomTime() {
+            const randomHour = Math.floor(Math.random() * 24);
+            const randomMinute = Math.floor(Math.random() * 60);
+            const randomSecond = Math.floor(Math.random() * 60);
+            return new Date(2000, 0, 1, randomHour, randomMinute, randomSecond);
+        }
+
+        function displayTimeText(randomTime) {
+            const timeText = document.getElementById('time-text');
+            const hours = randomTime.getHours().toString().padStart(2, '0');
+            const minutes = randomTime.getMinutes().toString().padStart(2, '0');
+            const seconds = randomTime.getSeconds().toString().padStart(2, '0');
+            timeText.textContent = `De tijd is: ${hours}:${minutes}:${seconds}`;
+        }
+
+        function displayRandomClock() {
+            const randomTime = generateRandomTime();
+            drawClock(randomTime);
+        }
+
+        displayRandomClock();
+    </script>
+</body>
+</html>
